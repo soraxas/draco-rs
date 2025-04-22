@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/soraxas/draco
+	branch = main
+	commit = fb0764a493ad9b109291794e06984edcf4fbc86b
+	parent = 455ed13cc927ec6afcc1be361e47be1a4cf1826a
+	method = merge
+	cmdver = 0.4.9
