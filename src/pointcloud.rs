@@ -24,6 +24,22 @@ impl From<AttrId> for c_int {
     }
 }
 
+pub trait PointIndexAble {
+    fn as_point_index(self) -> ffi::draco::PointIndex;
+}
+
+impl PointIndexAble for ffi::draco::PointIndex {
+    fn as_point_index(self) -> ffi::draco::PointIndex {
+        self
+    }
+}
+
+impl PointIndexAble for u32 {
+    fn as_point_index(self) -> ffi::draco::PointIndex {
+        ffi::draco::PointIndex { val: self }
+    }
+}
+
 // pub enum DracoStatus<T> {
 //     Ok(T),
 //     FailedStatus(UniquePtr<ffi::draco::Status>),
@@ -88,12 +104,38 @@ impl PointCloud {
         Self { pc }
     }
 
-    pub fn get_point(&mut self, attr_id: AttrId, point_index: ffi::draco::PointIndex) -> [f64; 3] {
-        let mut point = [0.0; 3];
+    // This function returns the attribute id of the attribute with the given name
+    // It stores the value in-place
+    pub fn get_point<T, const N: usize, Idx>(
+        &mut self,
+        attr_id: AttrId,
+        point_index: Idx,
+        point_container: &mut [T; N],
+    ) where
+        T: Default + Copy,
+        Idx: PointIndexAble,
+    {
         let pa_ptr = self.pc.pin_mut().GetAttributeByUniqueId(attr_id.as_u32());
         unsafe {
-            (*pa_ptr).GetMappedValue(point_index, point.as_mut_ptr() as *mut autocxx::c_void);
-        }
+            (*pa_ptr).GetMappedValue(
+                point_index.as_point_index(),
+                point_container.as_mut_ptr() as *mut c_void,
+            );
+        };
+    }
+
+    // This function allocates a new array of type T and fills it with the point data
+    pub fn get_point_alloc<T, const N: usize, Idx>(
+        &mut self,
+        attr_id: AttrId,
+        point_index: Idx,
+    ) -> [T; N]
+    where
+        T: Default + Copy,
+        Idx: PointIndexAble,
+    {
+        let mut point = [T::default(); N];
+        self.get_point(attr_id, point_index, &mut point);
         point
     }
 

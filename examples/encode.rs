@@ -25,9 +25,10 @@ fn get_points() -> Vec<[f64; 3]> {
 }
 
 fn print_pc(pc: &mut PointCloud, attr_id: AttrId) {
+    let mut container: [f64; 3] = [0.0; 3];
     for i in 0..pc.len() {
-        let point = pc.get_point(attr_id, ffi::draco::PointIndex { val: i as u32 });
-        println!("Point {}: {:?}", i, point);
+        pc.get_point(attr_id, i, &mut container);
+        println!("Point {}: {:?}", i, container);
     }
 }
 
@@ -56,8 +57,7 @@ fn main() -> io::Result<()> {
 
     if let Ok(mut buffer) = pc.to_buffer(&mut encoder) {
         let mut buf = DecoderBuffer::from_encoder_buffer(&mut buffer);
-        let mut decoder = Decoder::new();
-        let mut pc_decoded = PointCloud::from_buffer(&mut decoder, &mut buf);
+        let pc_decoded = PointCloud::from_buffer(&mut Decoder::new(), &mut buf);
 
         if let Ok(mut pc_decoded) = pc_decoded {
             println!("after decoding");
