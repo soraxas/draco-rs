@@ -22,7 +22,14 @@ fn generate_bindings(out_dir: String) -> miette::Result<()> {
         .extra_clang_args(&["-std=c++14"])
         .build()?;
 
-    b.opt_level(3).cpp(true).std("c++14").compile("draco-rs");
+    b.opt_level(3)
+        .cpp(true)
+        .std("c++14")
+        // .flag("-ldraco")
+        // .flag("-Wl,-l:libdraco.a")
+        // .flag(format!("-L{}", out_dir))
+        // .flag(format!("-L{}/build", out_dir))
+        .compile("draco-rs");
 
     println!("cargo:rerun-if-changed=src/bindgen.rs");
     println!("cargo:rerun-if-changed=src/extra.h");

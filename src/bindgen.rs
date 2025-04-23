@@ -30,7 +30,7 @@ autocxx::include_cpp! {
     #include "draco/io/mesh_io.h"
     #include "draco/io/point_cloud_io.h"
 
-
+    #include "draco/io/stdio_file_reader.h"
     #include "extra.h"
 
     // Safety policy. We are marking that this whole C++ inclusion is unsafe
@@ -56,7 +56,7 @@ autocxx::include_cpp! {
     // force the rust bind to generate file reader translation unit
     // because they are using a static register function to register the file reader (sigh)
     // (no longer neede if we pull in the whole namespace)
-    // generate!("draco::StdioFileReader")
+    generate!("draco::StdioFileReader")
     ////////////////////////////////////////////////////////////////////////////////
 
     generate_ns!("draco")
