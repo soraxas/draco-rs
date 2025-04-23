@@ -26,26 +26,11 @@ impl From<AttrId> for c_int {
     }
 }
 
-pub trait PointIndexAble {
-    fn as_point_index(self) -> ffi::draco::PointIndex;
-}
-
-impl PointIndexAble for ffi::draco::PointIndex {
-    fn as_point_index(self) -> ffi::draco::PointIndex {
-        self
+impl From<u32> for ffi::draco::PointIndex {
+    fn from(val: u32) -> Self {
+        ffi::draco::PointIndex { val }
     }
 }
-
-impl PointIndexAble for u32 {
-    fn as_point_index(self) -> ffi::draco::PointIndex {
-        ffi::draco::PointIndex { val: self }
-    }
-}
-
-// pub enum DracoStatus<T> {
-//     Ok(T),
-//     FailedStatus(UniquePtr<ffi::draco::Status>),
-// }
 
 pub struct PointCloudBuilder {
     builder: UniquePtr<ffi::draco::PointCloudBuilder>,
@@ -115,12 +100,12 @@ impl PointCloud {
         point_container: &mut [T; N],
     ) where
         T: Default + Copy,
-        Idx: PointIndexAble,
+        Idx: Into<ffi::draco::PointIndex>,
     {
         let pa_ptr = self.pc.pin_mut().GetAttributeByUniqueId(attr_id.as_u32());
         unsafe {
             (*pa_ptr).GetMappedValue(
-                point_index.as_point_index(),
+                point_index.into(),
                 point_container.as_mut_ptr() as *mut c_void,
             );
         };
@@ -134,7 +119,7 @@ impl PointCloud {
     ) -> [T; N]
     where
         T: Default + Copy,
-        Idx: PointIndexAble,
+        Idx: Into<ffi::draco::PointIndex>,
     {
         let mut point = [T::default(); N];
         self.get_point(attr_id, point_index, &mut point);
@@ -236,6 +221,12 @@ impl EncoderBuffer {
     }
 }
 
+impl Default for EncoderBuffer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub struct DecoderBuffer {
     pub(crate) buffer: UniquePtr<ffi::draco::DecoderBuffer>,
 }
@@ -258,6 +249,12 @@ impl DecoderBuffer {
     }
 }
 
+impl Default for DecoderBuffer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub struct Decoder {
     pub(crate) decoder: UniquePtr<ffi::draco::Decoder>,
 }
@@ -267,20 +264,10 @@ impl Decoder {
         let decoder = ffi::draco::Decoder::new().within_unique_ptr();
         Self { decoder }
     }
+}
 
-    // pub fn decode_point_cloud(
-    //     &mut self,
-    //     buffer: &mut DecoderBuffer,
-    // ) -> Result<PointCloud, UniquePtr<ffi::draco::Status>> {
-    //     let pc = unsafe {
-    //         self.decoder
-    //             .pin_mut()
-    //             .DecodePointCloudFromBuffer(buffer.as_mut_ptr())
-    //     };
-    //     if pc.ok() {
-    //         Ok(PointCloud { pc })
-    //     } else {
-    //         Err(pc)
-    //     }
-    // }
+impl Default for Encoder {
+    fn default() -> Self {
+        Self::new()
+    }
 }
