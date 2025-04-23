@@ -68,8 +68,7 @@ bool CornerTable::Reset(int num_faces, int num_vertices) {
     return false;
   }
   const unsigned int num_faces_unsigned = num_faces;
-  if (num_faces_unsigned >
-      std::numeric_limits<CornerIndex::ValueType>::max() / 3) {
+  if (num_faces_unsigned > std::numeric_limits<IndexValueType>::max() / 3) {
     return false;
   }
   corner_to_vertex_map_.assign(num_faces_unsigned * 3, kInvalidVertexIndex);

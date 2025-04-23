@@ -113,12 +113,12 @@ class PointAttribute : public GeometryAttribute {
   // Deduplicate |in_att| values into |this| attribute. |in_att| can be equal
   // to |this|.
   // Returns -1 if the deduplication failed.
-  AttributeValueIndex::ValueType DeduplicateValues(
+  IndexValueType DeduplicateValues(
       const GeometryAttribute &in_att);
 
   // Same as above but the values read from |in_att| are sampled with the
   // provided offset |in_att_offset|.
-  AttributeValueIndex::ValueType DeduplicateValues(
+  IndexValueType DeduplicateValues(
       const GeometryAttribute &in_att, AttributeValueIndex in_att_offset);
 #endif
 
@@ -142,10 +142,10 @@ class PointAttribute : public GeometryAttribute {
  private:
 #ifdef DRACO_ATTRIBUTE_VALUES_DEDUPLICATION_SUPPORTED
   template <typename T>
-  AttributeValueIndex::ValueType DeduplicateTypedValues(
+  IndexValueType DeduplicateTypedValues(
       const GeometryAttribute &in_att, AttributeValueIndex in_att_offset);
   template <typename T, int COMPONENTS_COUNT>
-  AttributeValueIndex::ValueType DeduplicateFormattedValues(
+  IndexValueType DeduplicateFormattedValues(
       const GeometryAttribute &in_att, AttributeValueIndex in_att_offset);
 #endif
 
@@ -155,7 +155,7 @@ class PointAttribute : public GeometryAttribute {
 
   // Mapping between point ids and attribute value ids.
   IndexTypeVector<PointIndex, AttributeValueIndex> indices_map_;
-  AttributeValueIndex::ValueType num_unique_entries_;
+  IndexValueType num_unique_entries_;
   // Flag when the mapping between point ids and attribute values is identity.
   bool identity_mapping_;
 

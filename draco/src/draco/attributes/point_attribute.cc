@@ -83,14 +83,14 @@ void PointAttribute::Resize(size_t new_num_unique_entries) {
 }
 
 #ifdef DRACO_ATTRIBUTE_VALUES_DEDUPLICATION_SUPPORTED
-AttributeValueIndex::ValueType PointAttribute::DeduplicateValues(
+IndexValueType PointAttribute::DeduplicateValues(
     const GeometryAttribute &in_att) {
   return DeduplicateValues(in_att, AttributeValueIndex(0));
 }
 
-AttributeValueIndex::ValueType PointAttribute::DeduplicateValues(
+IndexValueType PointAttribute::DeduplicateValues(
     const GeometryAttribute &in_att, AttributeValueIndex in_att_offset) {
-  AttributeValueIndex::ValueType unique_vals = 0;
+  IndexValueType unique_vals = 0;
   switch (in_att.data_type()) {
     // Currently we support only float, uint8, and uint16 arguments.
     case DT_FLOAT32:
@@ -128,7 +128,7 @@ AttributeValueIndex::ValueType PointAttribute::DeduplicateValues(
 // with the correct template arguments.
 // Returns the number of unique attribute values.
 template <typename T>
-AttributeValueIndex::ValueType PointAttribute::DeduplicateTypedValues(
+IndexValueType PointAttribute::DeduplicateTypedValues(
     const GeometryAttribute &in_att, AttributeValueIndex in_att_offset) {
   // Select the correct method to call based on the number of attribute
   // components.
@@ -147,7 +147,7 @@ AttributeValueIndex::ValueType PointAttribute::DeduplicateTypedValues(
 }
 
 template <typename T, int num_components_t>
-AttributeValueIndex::ValueType PointAttribute::DeduplicateFormattedValues(
+IndexValueType PointAttribute::DeduplicateFormattedValues(
     const GeometryAttribute &in_att, AttributeValueIndex in_att_offset) {
   // We want to detect duplicates using a hash map but we cannot hash floating
   // point numbers directly so bit-copy floats to the same sized integers and

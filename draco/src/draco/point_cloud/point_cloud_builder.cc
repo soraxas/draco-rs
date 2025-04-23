@@ -21,7 +21,7 @@ namespace draco {
 
 PointCloudBuilder::PointCloudBuilder() {}
 
-void PointCloudBuilder::Start(PointIndex::ValueType num_points) {
+void PointCloudBuilder::Start(IndexValueType num_points) {
   point_cloud_ = std::unique_ptr<PointCloud>(new PointCloud());
   point_cloud_->set_num_points(num_points);
 }

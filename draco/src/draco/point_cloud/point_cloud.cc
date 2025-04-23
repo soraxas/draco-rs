@@ -138,7 +138,7 @@ int PointCloud::AddAttribute(std::unique_ptr<PointAttribute> pa) {
 
 int PointCloud::AddAttribute(
     const GeometryAttribute &att, bool identity_mapping,
-    AttributeValueIndex::ValueType num_attribute_values) {
+    IndexValueType num_attribute_values) {
   auto pa = CreateAttribute(att, identity_mapping, num_attribute_values);
   if (!pa) {
     return -1;
@@ -149,7 +149,7 @@ int PointCloud::AddAttribute(
 
 std::unique_ptr<PointAttribute> PointCloud::CreateAttribute(
     const GeometryAttribute &att, bool identity_mapping,
-    AttributeValueIndex::ValueType num_attribute_values) const {
+    IndexValueType num_attribute_values) const {
   if (att.attribute_type() == GeometryAttribute::INVALID) {
     return nullptr;
   }
@@ -217,7 +217,7 @@ void PointCloud::DeleteAttribute(int att_id) {
 void PointCloud::DeduplicatePointIds() {
   // Hashing function for a single vertex.
   auto point_hash = [this](PointIndex p) {
-    PointIndex::ValueType hash = 0;
+    IndexValueType hash = 0;
     for (int32_t i = 0; i < this->num_attributes(); ++i) {
       const AttributeValueIndex att_id = attribute(i)->mapped_index(p);
       hash = static_cast<uint32_t>(HashCombine(att_id.value(), hash));

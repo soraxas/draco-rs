@@ -110,7 +110,7 @@ Status PlyDecoder::DecodeFaceData(const PlyElement *face_element) {
   out_mesh_->SetNumFaces(CountNumTriangles(*face_element, *vertex_indices));
   const int64_t num_polygons = face_element->num_entries();
 
-  PlyPropertyReader<PointIndex::ValueType> vertex_index_reader(vertex_indices);
+  PlyPropertyReader<IndexValueType> vertex_index_reader(vertex_indices);
   Mesh::Face face;
   FaceIndex face_index(0);
   for (int i = 0; i < num_polygons; ++i) {
@@ -147,7 +147,7 @@ bool PlyDecoder::ReadPropertiesToAttribute(
         new PlyPropertyReader<DataTypeT>(properties[prop])));
   }
   std::vector<DataTypeT> memory(properties.size());
-  for (PointIndex::ValueType i = 0; i < static_cast<uint32_t>(num_vertices);
+  for (IndexValueType i = 0; i < static_cast<uint32_t>(num_vertices);
        ++i) {
     for (int prop = 0; prop < properties.size(); ++prop) {
       memory[prop] = readers[prop]->ReadValue(i);
@@ -171,7 +171,7 @@ Status PlyDecoder::DecodeVertexData(const PlyElement *vertex_element) {
     // later on).
     return Status(Status::INVALID_PARAMETER, "x, y, or z property is missing");
   }
-  const PointIndex::ValueType num_vertices = vertex_element->num_entries();
+  const IndexValueType num_vertices = vertex_element->num_entries();
   out_point_cloud_->set_num_points(num_vertices);
   // Decode vertex positions.
   {
@@ -221,7 +221,7 @@ Status PlyDecoder::DecodeVertexData(const PlyElement *vertex_element) {
       va.Init(GeometryAttribute::NORMAL, nullptr, 3, DT_FLOAT32, false,
               sizeof(float) * 3, 0);
       const int att_id = out_point_cloud_->AddAttribute(va, true, num_vertices);
-      for (PointIndex::ValueType i = 0; i < num_vertices; ++i) {
+      for (IndexValueType i = 0; i < num_vertices; ++i) {
         std::array<float, 3> val;
         val[0] = x_reader.ReadValue(i);
         val[1] = y_reader.ReadValue(i);
@@ -304,7 +304,7 @@ Status PlyDecoder::DecodeVertexData(const PlyElement *vertex_element) {
             sizeof(uint8_t) * num_colors, 0);
     const int32_t att_id =
         out_point_cloud_->AddAttribute(va, true, num_vertices);
-    for (PointIndex::ValueType i = 0; i < num_vertices; ++i) {
+    for (IndexValueType i = 0; i < num_vertices; ++i) {
       std::array<uint8_t, 4> val;
       for (int j = 0; j < num_colors; j++) {
         val[j] = color_readers[j]->ReadValue(i);

@@ -53,7 +53,7 @@ Status MeshCleanup::Cleanup(Mesh *mesh, const MeshCleanupOptions &options) {
 void MeshCleanup::RemoveDegeneratedFaces(Mesh *mesh) {
   const PointAttribute *const pos_att =
       mesh->GetNamedAttribute(GeometryAttribute::POSITION);
-  FaceIndex::ValueType num_degenerated_faces = 0;
+  IndexValueType num_degenerated_faces = 0;
   // Array for storing position indices on a face.
   std::array<AttributeValueIndex, 3> pos_indices;
   for (FaceIndex f(0); f < mesh->num_faces(); ++f) {
@@ -108,7 +108,7 @@ void MeshCleanup::RemoveDuplicateFaces(Mesh *mesh) {
 void MeshCleanup::RemoveUnusedAttributes(Mesh *mesh) {
   // Array that is going to store whether a corresponding point is used.
   std::vector<bool> is_point_used;
-  PointIndex::ValueType num_new_points = 0;
+  IndexValueType num_new_points = 0;
   is_point_used.resize(mesh->num_points(), false);
   for (FaceIndex f(0); f < mesh->num_faces(); ++f) {
     const Mesh::Face &face = mesh->face(f);
@@ -121,7 +121,7 @@ void MeshCleanup::RemoveUnusedAttributes(Mesh *mesh) {
   }
 
   bool points_changed = false;
-  const PointIndex::ValueType num_original_points = mesh->num_points();
+  const IndexValueType num_original_points = mesh->num_points();
   // Map from old points to the new ones.
   IndexTypeVector<PointIndex, PointIndex> point_map(num_original_points);
   if (num_new_points < static_cast<int>(mesh->num_points())) {
@@ -162,7 +162,7 @@ void MeshCleanup::RemoveUnusedAttributes(Mesh *mesh) {
     // First detect which attribute entries are used (included in a point).
     is_att_index_used.assign(att->size(), 0);
     att_index_map.clear();
-    AttributeValueIndex::ValueType num_used_entries = 0;
+    IndexValueType num_used_entries = 0;
     for (PointIndex i(0); i < num_original_points; ++i) {
       if (point_map[i] != kInvalidPointIndex) {
         const AttributeValueIndex entry_id = att->mapped_index(i);
@@ -207,7 +207,7 @@ void MeshCleanup::RemoveUnusedAttributes(Mesh *mesh) {
           // number of points to recreate the original identity map.
           att->SetExplicitMapping(num_original_points);
           // Set the entries of the explicit map to identity.
-          for (PointIndex::ValueType i = 0; i < num_original_points; ++i) {
+          for (IndexValueType i = 0; i < num_original_points; ++i) {
             att->SetPointMapEntry(PointIndex(i), AttributeValueIndex(i));
           }
         }

@@ -46,7 +46,7 @@ class PointCloudBuilder {
 
   // Starts collecting point cloud data.
   // The behavior of other functions is undefined before this method is called.
-  void Start(PointIndex::ValueType num_points);
+  void Start(IndexValueType num_points);
 
   int AddAttribute(GeometryAttribute::Type attribute_type,
                    int8_t num_components, DataType data_type);

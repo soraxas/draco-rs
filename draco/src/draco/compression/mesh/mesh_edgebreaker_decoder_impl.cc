@@ -293,7 +293,7 @@ bool MeshEdgebreakerDecoderImpl<TraversalDecoder>::DecodeConnectivity() {
       return false;
     }
   }
-  if (num_faces > std::numeric_limits<CornerIndex::ValueType>::max() / 3) {
+  if (num_faces > std::numeric_limits<IndexValueType>::max() / 3) {
     return false;  // Draco cannot handle this many faces.
   }
 

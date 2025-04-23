@@ -105,14 +105,14 @@ class PointCloud {
   // stored in the newly created attribute. Returns attribute id of the newly
   // created attribute or -1 in case of failure.
   int AddAttribute(const GeometryAttribute &att, bool identity_mapping,
-                   AttributeValueIndex::ValueType num_attribute_values);
+                   IndexValueType num_attribute_values);
 
   // Creates and returns a new attribute or nullptr in case of failure. This
   // method is similar to AddAttribute(), except that it returns the new
   // attribute instead of adding it to the point cloud.
   std::unique_ptr<PointAttribute> CreateAttribute(
       const GeometryAttribute &att, bool identity_mapping,
-      AttributeValueIndex::ValueType num_attribute_values) const;
+      IndexValueType num_attribute_values) const;
 
   // Assigns an attribute id to a given PointAttribute. If an attribute with
   // the same attribute id already exists, it is deleted.
@@ -192,12 +192,12 @@ class PointCloud {
   GeometryMetadata *metadata() { return metadata_.get(); }
 
   // Returns the number of n-dimensional points stored within the point cloud.
-  PointIndex::ValueType num_points() const { return num_points_; }
+  IndexValueType num_points() const { return num_points_; }
 
   // Sets the number of points. It's the caller's responsibility to ensure the
   // new number is valid with respect to the PointAttributes stored in the point
   // cloud.
-  void set_num_points(PointIndex::ValueType num) { num_points_ = num; }
+  void set_num_points(IndexValueType num) { num_points_ = num; }
 
 #ifdef DRACO_TRANSCODER_SUPPORTED
   // Enables or disables Draco geometry compression for this mesh.
@@ -243,7 +243,7 @@ class PointCloud {
 
   // The number of n-dimensional points. All point attribute values are stored
   // in corresponding PointAttribute instances in the |attributes_| array.
-  PointIndex::ValueType num_points_;
+  IndexValueType num_points_;
 
 #ifdef DRACO_TRANSCODER_SUPPORTED
   // Compression options for this geometry.

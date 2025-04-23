@@ -50,11 +50,17 @@
 #ifndef DRACO_CORE_DRACO_INDEX_TYPE_H_
 #define DRACO_CORE_DRACO_INDEX_TYPE_H_
 
+#include <inttypes.h>
 #include <ostream>
 
 #include "draco/draco_features.h"
 
 namespace draco {
+
+// autocxx has trouble with understanding the IndexType::ValueType,
+// and since ALL usage of this macro is with uint32_t, we can just
+// expose this directly for autocxx.
+using IndexValueType = uint32_t;
 
 #define DEFINE_NEW_DRACO_INDEX_TYPE(value_type, name) \
   struct name##_tag_type_ {};                         \
