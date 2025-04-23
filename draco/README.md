@@ -1,5 +1,9 @@
+
+| <ins>__FORK NOTICE__</ins>: This is a trivial fork of [draco](https://github.com/google/draco) which had removed bloated binary files. A full clone of this repo would still contain those binary files, but a shallow clone or the subrepo usage in [draco-rs](https://github.com/soraxas/draco-rs) (rust-bindings) will not contains those files. |
+| ------------------------------------------------------------------------------ |
+
 <p align="center">
-<img width="350px" src="docs/artwork/draco3d-vert.svg" />
+<img width="350px" src="https://raw.githubusercontent.com/google/draco/refs/heads/main/docs/artwork/draco3d-vert.svg" />
 </p>
 
 [![draco-ci](https://github.com/google/draco/workflows/draco-ci/badge.svg?branch=main)](https://github.com/google/draco/actions/workflows/ci.yml)

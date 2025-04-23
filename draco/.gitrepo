@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/soraxas/draco
 	branch = main
-	commit = fb0764a493ad9b109291794e06984edcf4fbc86b
+	commit = ddf28dd7bb170efaf2d25fd6260f8709f86200fc
 	parent = 455ed13cc927ec6afcc1be361e47be1a4cf1826a
 	method = merge
 	cmdver = 0.4.9
