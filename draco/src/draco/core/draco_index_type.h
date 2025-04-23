@@ -72,105 +72,105 @@ using IndexValueType = uint32_t;
    public:                                                                 \
     typedef uint32_t ValueType;                                            \
                                                                            \
-    constexpr name##IndexType() : value_(ValueType()) {}                   \
-    constexpr explicit name##IndexType(ValueType val) : value_(val) {} \
-    constexpr name##IndexType with(ValueType val) {                      \
-      return name##IndexType(val);                                       \
+    constexpr name##IndexType() : val(ValueType()) {}                      \
+    constexpr explicit name##IndexType(ValueType value) : val(value) {}    \
+    constexpr name##IndexType with(ValueType value) {                      \
+      return name##IndexType(value);                                       \
     }                                                                      \
                                                                            \
-    constexpr ValueType value() const { return value_; }                   \
+    constexpr ValueType value() const { return val; }                      \
                                                                            \
     constexpr bool operator==(const name##IndexType &i) const {            \
-      return value_ == i.value_;                                           \
+      return val == i.val;                                                 \
     }                                                                      \
-    constexpr bool operator==(const ValueType &val) const {                \
-      return value_ == val;                                                \
+    constexpr bool operator==(const ValueType &val_in) const {             \
+      return val == val_in;                                                \
     }                                                                      \
     constexpr bool operator!=(const name##IndexType &i) const {            \
-      return value_ != i.value_;                                           \
+      return val != i.val;                                                 \
     }                                                                      \
-    constexpr bool operator!=(const ValueType &val) const {                \
-      return value_ != val;                                                \
+    constexpr bool operator!=(const ValueType &val_in) const {             \
+      return val != val_in;                                                \
     }                                                                      \
     constexpr bool operator<(const name##IndexType &i) const {             \
-      return value_ < i.value_;                                            \
+      return val < i.val;                                                  \
     }                                                                      \
-    constexpr bool operator<(const ValueType &val) const {                 \
-      return value_ < val;                                                 \
+    constexpr bool operator<(const ValueType &val_in) const {              \
+      return val < val_in;                                                 \
     }                                                                      \
     constexpr bool operator>(const name##IndexType &i) const {             \
-      return value_ > i.value_;                                            \
+      return val > i.val;                                                  \
     }                                                                      \
-    constexpr bool operator>(const ValueType &val) const {                 \
-      return value_ > val;                                                 \
+    constexpr bool operator>(const ValueType &val_in) const {              \
+      return val > val_in;                                                 \
     }                                                                      \
     constexpr bool operator>=(const name##IndexType &i) const {            \
-      return value_ >= i.value_;                                           \
+      return val >= i.val;                                                 \
     }                                                                      \
-    constexpr bool operator>=(const ValueType &val) const {                \
-      return value_ >= val;                                                \
+    constexpr bool operator>=(const ValueType &val_in) const {             \
+      return val >= val_in;                                                \
     }                                                                      \
                                                                            \
     inline name##IndexType &operator++() {                                 \
-      ++value_;                                                            \
+      ++val;                                                               \
       return *this;                                                        \
     }                                                                      \
     inline name##IndexType operator++(int) {                               \
-      const name##IndexType ret(value_);                                   \
-      ++value_;                                                            \
+      const name##IndexType ret(val);                                      \
+      ++val;                                                               \
       return ret;                                                          \
     }                                                                      \
                                                                            \
     inline name##IndexType &operator--() {                                 \
-      --value_;                                                            \
+      --val;                                                               \
       return *this;                                                        \
     }                                                                      \
     inline name##IndexType operator--(int) {                               \
-      const name##IndexType ret(value_);                                   \
-      --value_;                                                            \
+      const name##IndexType ret(val);                                      \
+      --val;                                                               \
       return ret;                                                          \
     }                                                                      \
                                                                            \
     constexpr name##IndexType operator+(const name##IndexType &i) const {  \
-      return name##IndexType(value_ + i.value_);                           \
+      return name##IndexType(val + i.val);                                 \
     }                                                                      \
-    constexpr name##IndexType operator+(const ValueType &val) const {      \
-      return name##IndexType(value_ + val);                                \
+    constexpr name##IndexType operator+(const ValueType &val_in) const {   \
+      return name##IndexType(val + val_in);                                \
     }                                                                      \
     constexpr name##IndexType operator-(const name##IndexType &i) const {  \
-      return name##IndexType(value_ - i.value_);                           \
+      return name##IndexType(val - i.val);                                 \
     }                                                                      \
-    constexpr name##IndexType operator-(const ValueType &val) const {      \
-      return name##IndexType(value_ - val);                                \
+    constexpr name##IndexType operator-(const ValueType &val_in) const {   \
+      return name##IndexType(val - val_in);                                \
     }                                                                      \
                                                                            \
     inline name##IndexType &operator+=(const name##IndexType &i) {         \
-      value_ += i.value_;                                                  \
+      val += i.val;                                                        \
       return *this;                                                        \
     }                                                                      \
-    inline name##IndexType operator+=(const ValueType &val) {              \
-      value_ += val;                                                       \
+    inline name##IndexType operator+=(const ValueType &val_in) {           \
+      val += val_in;                                                       \
       return *this;                                                        \
     }                                                                      \
     inline name##IndexType &operator-=(const name##IndexType &i) {         \
-      value_ -= i.value_;                                                  \
+      val -= i.val;                                                        \
       return *this;                                                        \
     }                                                                      \
-    inline name##IndexType operator-=(const ValueType &val) {              \
-      value_ -= val;                                                       \
+    inline name##IndexType operator-=(const ValueType &val_in) {           \
+      val -= val_in;                                                       \
       return *this;                                                        \
     }                                                                      \
     inline name##IndexType &operator=(const name##IndexType &i) {          \
-      value_ = i.value_;                                                   \
+      val = i.val;                                                         \
       return *this;                                                        \
     }                                                                      \
-    inline name##IndexType &operator=(const ValueType &val) {              \
-      value_ = val;                                                        \
+    inline name##IndexType &operator=(const ValueType &val_in) {           \
+      val = val_in;                                                        \
       return *this;                                                        \
     }                                                                      \
     /* NO private field to support POD in rust bindings */                 \
     /*  private: */                                                        \
-    ValueType value;                                                       \
+    ValueType val;                                                         \
   };                                                                       \
   typedef name##IndexType name;                                            \
                                                                            \

@@ -28,6 +28,9 @@ namespace draco {
 // compressed by a Draco encoder.
 class Decoder {
  public:
+  // [modified] added default constructor for rust bindings
+  Decoder() = default;
+
   // Returns the geometry type encoded in the input |in_buffer|.
   // The return value is one of POINT_CLOUD, MESH or INVALID_GEOMETRY in case
   // the input data is invalid.
