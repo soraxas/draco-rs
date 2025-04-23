@@ -241,7 +241,7 @@ impl DecoderBuffer {
         let mut buffer = ffi::draco::DecoderBuffer::new().within_unique_ptr();
         unsafe {
             buffer.pin_mut().Init(
-                encoder_buffer.buffer.as_ref().unwrap().data() as *const i8,
+                encoder_buffer.buffer.as_ref().unwrap().data(),
                 encoder_buffer.buffer.size(),
             )
         };
@@ -267,6 +267,12 @@ impl Decoder {
 }
 
 impl Default for Encoder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Default for Decoder {
     fn default() -> Self {
         Self::new()
     }
