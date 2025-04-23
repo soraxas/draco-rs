@@ -33,5 +33,9 @@ static constexpr MeshFeaturesIndex kInvalidMeshFeaturesIndex(
 
 }  // namespace draco
 
+namespace std {
+DEFINE_NEW_DRACO_INDEX_TYPE_HASH_OPERATOR(MeshFeaturesIndex)
+}
+
 #endif  // DRACO_MESH_MESH_INDICES_H_
 #endif  // DRACO_TRANSCODER_SUPPORTED

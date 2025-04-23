@@ -62,133 +62,132 @@ namespace draco {
 // expose this directly for autocxx.
 using IndexValueType = uint32_t;
 
-#define DEFINE_NEW_DRACO_INDEX_TYPE(value_type, name) \
-  struct name##_tag_type_ {};                         \
-  typedef IndexType<value_type, name##_tag_type_> name;
+// #define DEFINE_NEW_DRACO_INDEX_TYPE(value_type, name) \
+//   struct name##_tag_type_ {};                         \
+//   typedef IndexType<name##_tag_type_> name;
 
-template <class ValueTypeT, class TagT>
-class IndexType {
- // [modified]
- // MARKER to force bindings to work. see https://github.com/google/autocxx/issues/1105
- private:
-  TagT tag_;  // Used to distinguish between different index types.
+#define DEFINE_NEW_DRACO_INDEX_TYPE(value_type, name)                      \
+  /* first generate the class inside draco namespace */                    \
+  class name##IndexType {                                                  \
+   public:                                                                 \
+    typedef uint32_t ValueType;                                            \
+                                                                           \
+    constexpr name##IndexType() : value_(ValueType()) {}                   \
+    constexpr explicit name##IndexType(ValueType val) : value_(val) {} \
+    constexpr name##IndexType with(ValueType val) {                      \
+      return name##IndexType(val);                                       \
+    }                                                                      \
+                                                                           \
+    constexpr ValueType value() const { return value_; }                   \
+                                                                           \
+    constexpr bool operator==(const name##IndexType &i) const {            \
+      return value_ == i.value_;                                           \
+    }                                                                      \
+    constexpr bool operator==(const ValueType &val) const {                \
+      return value_ == val;                                                \
+    }                                                                      \
+    constexpr bool operator!=(const name##IndexType &i) const {            \
+      return value_ != i.value_;                                           \
+    }                                                                      \
+    constexpr bool operator!=(const ValueType &val) const {                \
+      return value_ != val;                                                \
+    }                                                                      \
+    constexpr bool operator<(const name##IndexType &i) const {             \
+      return value_ < i.value_;                                            \
+    }                                                                      \
+    constexpr bool operator<(const ValueType &val) const {                 \
+      return value_ < val;                                                 \
+    }                                                                      \
+    constexpr bool operator>(const name##IndexType &i) const {             \
+      return value_ > i.value_;                                            \
+    }                                                                      \
+    constexpr bool operator>(const ValueType &val) const {                 \
+      return value_ > val;                                                 \
+    }                                                                      \
+    constexpr bool operator>=(const name##IndexType &i) const {            \
+      return value_ >= i.value_;                                           \
+    }                                                                      \
+    constexpr bool operator>=(const ValueType &val) const {                \
+      return value_ >= val;                                                \
+    }                                                                      \
+                                                                           \
+    inline name##IndexType &operator++() {                                 \
+      ++value_;                                                            \
+      return *this;                                                        \
+    }                                                                      \
+    inline name##IndexType operator++(int) {                               \
+      const name##IndexType ret(value_);                                   \
+      ++value_;                                                            \
+      return ret;                                                          \
+    }                                                                      \
+                                                                           \
+    inline name##IndexType &operator--() {                                 \
+      --value_;                                                            \
+      return *this;                                                        \
+    }                                                                      \
+    inline name##IndexType operator--(int) {                               \
+      const name##IndexType ret(value_);                                   \
+      --value_;                                                            \
+      return ret;                                                          \
+    }                                                                      \
+                                                                           \
+    constexpr name##IndexType operator+(const name##IndexType &i) const {  \
+      return name##IndexType(value_ + i.value_);                           \
+    }                                                                      \
+    constexpr name##IndexType operator+(const ValueType &val) const {      \
+      return name##IndexType(value_ + val);                                \
+    }                                                                      \
+    constexpr name##IndexType operator-(const name##IndexType &i) const {  \
+      return name##IndexType(value_ - i.value_);                           \
+    }                                                                      \
+    constexpr name##IndexType operator-(const ValueType &val) const {      \
+      return name##IndexType(value_ - val);                                \
+    }                                                                      \
+                                                                           \
+    inline name##IndexType &operator+=(const name##IndexType &i) {         \
+      value_ += i.value_;                                                  \
+      return *this;                                                        \
+    }                                                                      \
+    inline name##IndexType operator+=(const ValueType &val) {              \
+      value_ += val;                                                       \
+      return *this;                                                        \
+    }                                                                      \
+    inline name##IndexType &operator-=(const name##IndexType &i) {         \
+      value_ -= i.value_;                                                  \
+      return *this;                                                        \
+    }                                                                      \
+    inline name##IndexType operator-=(const ValueType &val) {              \
+      value_ -= val;                                                       \
+      return *this;                                                        \
+    }                                                                      \
+    inline name##IndexType &operator=(const name##IndexType &i) {          \
+      value_ = i.value_;                                                   \
+      return *this;                                                        \
+    }                                                                      \
+    inline name##IndexType &operator=(const ValueType &val) {              \
+      value_ = val;                                                        \
+      return *this;                                                        \
+    }                                                                      \
+    /* NO private field to support POD in rust bindings */                 \
+    /*  private: */                                                        \
+    ValueType value;                                                       \
+  };                                                                       \
+  typedef name##IndexType name;                                            \
+                                                                           \
+// /* also generate a << operator for logging purposes */                           \
+// std::ostream &operator<<(std::ostream &os, name##IndexType index) {              \
+//   return os << index.value();                                                    \
+// }
 
- public:
-  typedef IndexType<ValueTypeT, TagT> ThisIndexType;
-  typedef ValueTypeT ValueType;
-
-  constexpr IndexType() : value_(ValueTypeT()) {}
-  constexpr explicit IndexType(ValueTypeT value) : value_(value) {}
-
-  constexpr ValueTypeT value() const { return value_; }
-
-  constexpr bool operator==(const IndexType &i) const {
-    return value_ == i.value_;
-  }
-  constexpr bool operator==(const ValueTypeT &val) const {
-    return value_ == val;
-  }
-  constexpr bool operator!=(const IndexType &i) const {
-    return value_ != i.value_;
-  }
-  constexpr bool operator!=(const ValueTypeT &val) const {
-    return value_ != val;
-  }
-  constexpr bool operator<(const IndexType &i) const {
-    return value_ < i.value_;
-  }
-  constexpr bool operator<(const ValueTypeT &val) const { return value_ < val; }
-  constexpr bool operator>(const IndexType &i) const {
-    return value_ > i.value_;
-  }
-  constexpr bool operator>(const ValueTypeT &val) const { return value_ > val; }
-  constexpr bool operator>=(const IndexType &i) const {
-    return value_ >= i.value_;
-  }
-  constexpr bool operator>=(const ValueTypeT &val) const {
-    return value_ >= val;
-  }
-
-  inline ThisIndexType &operator++() {
-    ++value_;
-    return *this;
-  }
-  inline ThisIndexType operator++(int) {
-    const ThisIndexType ret(value_);
-    ++value_;
-    return ret;
-  }
-
-  inline ThisIndexType &operator--() {
-    --value_;
-    return *this;
-  }
-  inline ThisIndexType operator--(int) {
-    const ThisIndexType ret(value_);
-    --value_;
-    return ret;
-  }
-
-  constexpr ThisIndexType operator+(const IndexType &i) const {
-    return ThisIndexType(value_ + i.value_);
-  }
-  constexpr ThisIndexType operator+(const ValueTypeT &val) const {
-    return ThisIndexType(value_ + val);
-  }
-  constexpr ThisIndexType operator-(const IndexType &i) const {
-    return ThisIndexType(value_ - i.value_);
-  }
-  constexpr ThisIndexType operator-(const ValueTypeT &val) const {
-    return ThisIndexType(value_ - val);
-  }
-
-  inline ThisIndexType &operator+=(const IndexType &i) {
-    value_ += i.value_;
-    return *this;
-  }
-  inline ThisIndexType operator+=(const ValueTypeT &val) {
-    value_ += val;
-    return *this;
-  }
-  inline ThisIndexType &operator-=(const IndexType &i) {
-    value_ -= i.value_;
-    return *this;
-  }
-  inline ThisIndexType operator-=(const ValueTypeT &val) {
-    value_ -= val;
-    return *this;
-  }
-  inline ThisIndexType &operator=(const ThisIndexType &i) {
-    value_ = i.value_;
-    return *this;
-  }
-  inline ThisIndexType &operator=(const ValueTypeT &val) {
-    value_ = val;
-    return *this;
-  }
-
- private:
-  ValueTypeT value_;
+/* and generate the hash function, inside std namespace */
+#define DEFINE_NEW_DRACO_INDEX_TYPE_HASH_OPERATOR(name) \
+template <>                                             \
+struct hash<draco::name> {                              \
+  size_t operator()(const draco::name &i) const {       \
+    return static_cast<size_t>(i.value());              \
+  }                                                     \
 };
 
-// Stream operator << provided for logging purposes.
-template <class ValueTypeT, class TagT>
-std::ostream &operator<<(std::ostream &os, IndexType<ValueTypeT, TagT> index) {
-  return os << index.value();
-}
-
-}  // namespace draco
-
-// Specialize std::hash for the strongly indexed types.
-namespace std {
-
-template <class ValueTypeT, class TagT>
-struct hash<draco::IndexType<ValueTypeT, TagT>> {
-  size_t operator()(const draco::IndexType<ValueTypeT, TagT> &i) const {
-    return static_cast<size_t>(i.value());
-  }
-};
-
-}  // namespace std
+} // namespace draco
 
 #endif  // DRACO_CORE_DRACO_INDEX_TYPE_H_
