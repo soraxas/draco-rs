@@ -1,35 +1,70 @@
-use draco_rs::{Encoder, Mesh, PointCloud};
+use autocxx::{CppRef, WithinBox, WithinUniquePtr};
+use draco_rs::prelude::*;
 use std::fs::File;
 use std::io::{self, Write};
 
+use draco_rs::pointcloud::{
+    AttrId, Decoder, DecoderBuffer, Encoder, PointCloud, PointCloudBuilder,
+};
+
+fn get_points() -> Vec<[f64; 3]> {
+    // This function returns a vector of points
+    // In a real application, you would load this data from a file or other source
+    vec![
+        [0.0, 0.1, 0.2],
+        [0.1, 0.2, 0.3],
+        [0.2, 0.3, 0.4],
+        [0.3, 0.4, 0.5],
+        [0.4, 0.5, 0.6],
+        [0.5, 0.6, 0.7],
+        [0.6, 0.7, 0.8],
+        [0.7, 0.8, 0.9],
+        [0.8, 0.9, 1.0],
+        [0.9, 1.0, 1.1],
+    ]
+}
+
+fn print_pc(pc: &mut PointCloud, attr_id: AttrId) {
+    for i in 0..pc.len() {
+        let point = pc.get_point(attr_id, ffi::draco::PointIndex { val: i as u32 });
+        println!("Point {}: {:?}", i, point);
+    }
+}
+
 fn main() -> io::Result<()> {
-    // Create a simple mesh (or load one from a file)
-    let mut mesh = Mesh::new();
+    let points = get_points();
 
-    // Add vertices to the mesh
-    mesh.add_vertex([0.0, 0.0, 0.0]);
-    mesh.add_vertex([1.0, 0.0, 0.0]);
-    mesh.add_vertex([0.0, 1.0, 0.0]);
+    let mut builder = PointCloudBuilder::new(points.len() as u32);
 
-    // Add a face (triangle) to the mesh
-    mesh.add_face([0, 1, 2]);
+    let attr_id = builder.add_attribute(
+        ffi::draco::GeometryAttribute_Type::POSITION,
+        3,
+        ffi::draco::DataType::DT_FLOAT64,
+    );
 
-    // Create an encoder
-    let mut encoder = Encoder::new();
+    for (i, point) in points.iter().enumerate() {
+        builder.add_point(attr_id, ffi::draco::PointIndex { val: i as u32 }, point);
+    }
+    let mut pc = builder.build(false);
 
-    // Set encoding options (e.g., compression level)
-    encoder.set_compression_level(10);
+    println!("after building");
+    print_pc(&mut pc, attr_id);
 
-    // Encode the mesh
-    let encoded_data = encoder
-        .encode_mesh_to_buffer(&mesh)
-        .expect("Failed to encode mesh");
+    let mut encoder = Encoder::new()
+        .set_speed_options(5, 5)
+        .set_attribute_quantization(ffi::draco::GeometryAttribute_Type::POSITION, 14);
 
-    // Write the encoded data to a file
-    let mut file = File::create("output.drc")?;
-    file.write_all(&encoded_data)?;
+    if let Ok(mut buffer) = pc.to_buffer(&mut encoder) {
+        let mut buf = DecoderBuffer::from_encoder_buffer(&mut buffer);
+        let mut decoder = Decoder::new();
+        let mut pc_decoded = PointCloud::from_buffer(&mut decoder, &mut buf);
 
-    println!("Mesh successfully encoded and saved to 'output.drc'");
-
+        if let Ok(mut pc_decoded) = pc_decoded {
+            println!("after decoding");
+            print_pc(&mut pc_decoded, attr_id);
+        } else {
+            println!("Failed to decode point cloud");
+        }
+    }
     Ok(())
 }

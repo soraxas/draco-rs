@@ -1,11 +1,14 @@
 fn compile() -> String {
     let dst = cmake::Config::new("draco")
+        .define("CMAKE_BUILD_TYPE", "Release")
         .define("DRACO_POINT_CLOUD_COMPRESSION", "ON")
         .define("DRACO_MESH_COMPRESSION", "ON")
         .define("CMAKE_POSITION_INDEPENDENT_CODE", "ON")
         .define("BUILD_SHARED_LIBS", "OFF")
         // .define("CMAKE_CXX_FLAGS", "-D_GLIBCXX_USE_CXX11_ABI=1")
         .cxxflag("-fPIC")
+        // silent all build noise from the upstream draco library
+        .cxxflag("-w")
         .build();
 
     dst.display().to_string()

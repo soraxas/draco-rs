@@ -45,6 +45,16 @@ namespace draco_extra
         return std::move(pc).value();
     }
 
+    inline draco::Status unpack_status_or_pointcloud_status(const draco::StatusOr<std::unique_ptr<draco::PointCloud>> &pc)
+    {
+        return pc.status();
+    }
+
+    inline std::unique_ptr<draco::PointCloud> unpack_status_or_pointcloud_value(draco::StatusOr<std::unique_ptr<draco::PointCloud>> &pc)
+    {
+        return std::move(pc).value();
+    }
+
     // inline std::unique_ptr<MeshWithStatus> unpack_status_mesh(draco::StatusOr<std::unique_ptr<draco::Mesh>> &pc)
     // {
 

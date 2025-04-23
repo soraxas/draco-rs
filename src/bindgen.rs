@@ -24,7 +24,10 @@ autocxx::include_cpp! {
     // C++ headers we want to include.
     #include "draco/compression/config/compression_shared.h"
     #include "draco/compression/encode.h"
+    #include "draco/compression/decode.h"
     #include "draco/compression/expert_encode.h"
+    #include "draco/point_cloud/point_cloud_builder.h"
+    #include "draco/core/encoder_buffer.h"
     #include "draco/core/cycle_timer.h"
     #include "draco/io/file_utils.h"
     #include "draco/io/mesh_io.h"
@@ -47,7 +50,7 @@ autocxx::include_cpp! {
     // // generate!("draco::StatusOr")
     // generate!("draco::Mesh")
     // generate!("draco::FaceIndex")
-    // generate!("draco::PointIndex")
+    // generate!("draco::IndexValueType")
     // generate!("draco::GeometryAttribute")
 
     // generate!("draco::Status")
@@ -58,6 +61,13 @@ autocxx::include_cpp! {
     // (no longer neede if we pull in the whole namespace)
     generate!("draco::StdioFileReader")
     ////////////////////////////////////////////////////////////////////////////////
+
+    generate_pod!("draco::PointIndexIndexType")
+    generate_pod!("draco::AttributeValueIndexIndexType")
+    generate_pod!("draco::PointIndexIndexType")
+    generate_pod!("draco::VertexIndexIndexType")
+    generate_pod!("draco::CornerIndexIndexType")
+    generate_pod!("draco::FaceIndexIndexType")
 
     generate_ns!("draco")
     // the following is a templated class
