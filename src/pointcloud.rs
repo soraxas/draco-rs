@@ -7,6 +7,8 @@ use autocxx::prelude::*;
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct AttrId(pub c_int);
 
+pub type DracoStatusType<T> = Result<T, UniquePtr<ffi::draco::Status>>;
+
 impl AttrId {
     pub fn as_u32(&self) -> u32 {
         self.0 .0 as u32
@@ -155,10 +157,7 @@ impl PointCloud {
         self.pc.num_points() == 0
     }
 
-    pub fn to_buffer(
-        &self,
-        encoder: &mut Encoder,
-    ) -> Result<EncoderBuffer, UniquePtr<ffi::draco::Status>> {
+    pub fn to_buffer(&self, encoder: &mut Encoder) -> DracoStatusType<EncoderBuffer> {
         let mut buffer = EncoderBuffer::new();
 
         let status = unsafe {
@@ -176,10 +175,7 @@ impl PointCloud {
         }
     }
 
-    pub fn from_buffer(
-        decoder: &mut Decoder,
-        buffer: &mut DecoderBuffer,
-    ) -> Result<Self, UniquePtr<ffi::draco::Status>> {
+    pub fn from_buffer(decoder: &mut Decoder, buffer: &mut DecoderBuffer) -> DracoStatusType<Self> {
         let mut status_or = unsafe {
             decoder
                 .decoder

@@ -1,13 +1,11 @@
-use autocxx::{CppRef, WithinBox, WithinUniquePtr};
 use draco_rs::prelude::*;
-use std::fs::File;
-use std::io::{self, Write};
+use std::io;
 
 use draco_rs::pointcloud::{
     AttrId, Decoder, DecoderBuffer, Encoder, PointCloud, PointCloudBuilder,
 };
 
-fn get_points() -> Vec<[f64; 3]> {
+fn gen_points() -> Vec<[f64; 3]> {
     // This function returns a vector of points
     // In a real application, you would load this data from a file or other source
     vec![
@@ -33,8 +31,9 @@ fn print_pc(pc: &mut PointCloud, attr_id: AttrId) {
 }
 
 fn main() -> io::Result<()> {
-    let points = get_points();
+    let points = gen_points();
 
+    ////////// BUINDING //////////
     let mut builder = PointCloudBuilder::new(points.len() as u32);
 
     let attr_id = builder.add_attribute(
@@ -51,11 +50,13 @@ fn main() -> io::Result<()> {
     println!("after building");
     print_pc(&mut pc, attr_id);
 
+    ////////// ENCODE //////////
     let mut encoder = Encoder::new()
         .set_speed_options(5, 5)
         .set_attribute_quantization(ffi::draco::GeometryAttribute_Type::POSITION, 14);
 
     if let Ok(mut buffer) = pc.to_buffer(&mut encoder) {
+        ////////// DECODE //////////
         let mut buf = DecoderBuffer::from_encoder_buffer(&mut buffer);
         let pc_decoded = PointCloud::from_buffer(&mut Decoder::new(), &mut buf);
 
