@@ -26,6 +26,56 @@ namespace draco {
 // Class representing a buffer that can be used for either for byte-aligned
 // encoding of arbitrary data structures or for encoding of variable-length
 // bit data.
+
+// [modified] This class has been moved out of the Encoder class to allow
+// autocxx to generate a correct binding for it.
+class BitEncoder {
+ public:
+  // |data| is the buffer to write the bits into.
+  explicit BitEncoder(char *data) : bit_buffer_(data), bit_offset_(0) {}
+
+  // Write |nbits| of |data| into the bit buffer.
+  void PutBits(uint32_t data, int32_t nbits) {
+    DRACO_DCHECK_GE(nbits, 0);
+    DRACO_DCHECK_LE(nbits, 32);
+    for (int32_t bit = 0; bit < nbits; ++bit) {
+      PutBit((data >> bit) & 1);
+    }
+  }
+
+  // Return number of bits encoded so far.
+  uint64_t Bits() const { return static_cast<uint64_t>(bit_offset_); }
+
+  // TODO(fgalligan): Remove this function once we know we do not need the
+  // old API anymore.
+  // This is a function of an old API, that currently does nothing.
+  void Flush(int /* left_over_bit_value */) {}
+
+  // Return the number of bits required to store the given number
+  static uint32_t BitsRequired(uint32_t x) {
+    return static_cast<uint32_t>(MostSignificantBit(x));
+  }
+
+ private:
+  void PutBit(uint8_t value) {
+    const int byte_size = 8;
+    const uint64_t off = static_cast<uint64_t>(bit_offset_);
+    const uint64_t byte_offset = off / byte_size;
+    const int bit_shift = off % byte_size;
+
+    // TODO(fgalligan): Check performance if we add a branch and only do one
+    // memory write if bit_shift is 7. Also try using a temporary variable to
+    // hold the bits before writing to the buffer.
+
+    bit_buffer_[byte_offset] &= ~(1 << bit_shift);
+    bit_buffer_[byte_offset] |= value << bit_shift;
+    bit_offset_++;
+  }
+
+  char *bit_buffer_;
+  size_t bit_offset_;
+};
+
 class EncoderBuffer {
  public:
   EncoderBuffer();
@@ -81,52 +131,6 @@ class EncoderBuffer {
 
  private:
   // Internal helper class to encode bits to a bit buffer.
-  class BitEncoder {
-   public:
-    // |data| is the buffer to write the bits into.
-    explicit BitEncoder(char *data) : bit_buffer_(data), bit_offset_(0) {}
-
-    // Write |nbits| of |data| into the bit buffer.
-    void PutBits(uint32_t data, int32_t nbits) {
-      DRACO_DCHECK_GE(nbits, 0);
-      DRACO_DCHECK_LE(nbits, 32);
-      for (int32_t bit = 0; bit < nbits; ++bit) {
-        PutBit((data >> bit) & 1);
-      }
-    }
-
-    // Return number of bits encoded so far.
-    uint64_t Bits() const { return static_cast<uint64_t>(bit_offset_); }
-
-    // TODO(fgalligan): Remove this function once we know we do not need the
-    // old API anymore.
-    // This is a function of an old API, that currently does nothing.
-    void Flush(int /* left_over_bit_value */) {}
-
-    // Return the number of bits required to store the given number
-    static uint32_t BitsRequired(uint32_t x) {
-      return static_cast<uint32_t>(MostSignificantBit(x));
-    }
-
-   private:
-    void PutBit(uint8_t value) {
-      const int byte_size = 8;
-      const uint64_t off = static_cast<uint64_t>(bit_offset_);
-      const uint64_t byte_offset = off / byte_size;
-      const int bit_shift = off % byte_size;
-
-      // TODO(fgalligan): Check performance if we add a branch and only do one
-      // memory write if bit_shift is 7. Also try using a temporary variable to
-      // hold the bits before writing to the buffer.
-
-      bit_buffer_[byte_offset] &= ~(1 << bit_shift);
-      bit_buffer_[byte_offset] |= value << bit_shift;
-      bit_offset_++;
-    }
-
-    char *bit_buffer_;
-    size_t bit_offset_;
-  };
   friend class BufferBitCodingTest;
   // All data is stored in this vector.
   std::vector<char> buffer_;

@@ -62,6 +62,11 @@ namespace draco {
 
 template <class ValueTypeT, class TagT>
 class IndexType {
+ // [modified]
+ // MARKER to force bindings to work. see https://github.com/google/autocxx/issues/1105
+ private:
+  TagT tag_;  // Used to distinguish between different index types.
+
  public:
   typedef IndexType<ValueTypeT, TagT> ThisIndexType;
   typedef ValueTypeT ValueType;

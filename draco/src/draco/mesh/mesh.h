@@ -72,7 +72,8 @@ class Mesh : public PointCloud {
   // existing ones if necessary.
   void SetNumFaces(size_t num_faces) { faces_.resize(num_faces, Face()); }
 
-  FaceIndex::ValueType num_faces() const {
+  // [modified] autocxx cannot infer FaceIndex::ValueType directly.
+  auto num_faces() const {
     return static_cast<uint32_t>(faces_.size());
   }
   const Face &face(FaceIndex face_id) const {
