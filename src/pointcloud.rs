@@ -31,16 +31,18 @@ impl PointCloudBuilder {
             .into()
     }
 
-    pub fn add_point(
+    pub fn add_point<T, const N: usize, Idx>(
         &mut self,
         attr_id: AttrId,
-        point_index: ffi::draco::PointIndex,
-        point: &[f64; 3],
-    ) {
+        point_index: Idx,
+        point: &[T; N],
+    ) where
+        Idx: Into<ffi::draco::PointIndex>,
+    {
         unsafe {
-            self.builder.pin_mut().SetAttributeValueForPoint(
+            self.0.pin_mut().SetAttributeValueForPoint(
                 attr_id.0,
-                point_index,
+                point_index.into(),
                 point.as_ptr() as *const autocxx::c_void,
             );
         }
