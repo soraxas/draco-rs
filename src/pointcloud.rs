@@ -32,11 +32,11 @@ impl PointCloudBuilder {
     ///
     /// The `point` slice must point to valid memory with a lifetime at least as long as the `PointCloudBuilder` instance.
     /// The size and type of the data in the slice must be compatible with the attribute `attr_id`.
-    pub fn add_point<T, const N: usize>(
+    pub fn add_point<T>(
         &mut self,
         attr_id: AttrId,
         point_index: impl Into<ffi::draco::PointIndex>,
-        point: &[T; N],
+        point: &[T],
     ) {
         unsafe { self.add_point_with_ptr(attr_id, point_index, point.as_ptr() as *const c_void) }
     }
@@ -84,11 +84,11 @@ impl PointCloud {
 
     // This function returns the attribute id of the attribute with the given name
     // It stores the value in-place
-    pub fn get_point<T, const N: usize>(
+    pub fn get_point<T>(
         &mut self,
         attr_id: AttrId,
         point_index: impl Into<ffi::draco::PointIndex>,
-        point_container: &mut [T; N],
+        point_container: &mut [T],
     ) where
         T: Default + Copy,
     {
@@ -174,6 +174,7 @@ impl PointCloud {
         self.0.num_points() == 0
     }
 
+    /// Encode the point cloud to an encoder buffer
     pub fn to_buffer(&self, encoder: &mut Encoder) -> DracoStatusType<EncoderBuffer> {
         let mut buffer = EncoderBuffer::new();
 
@@ -192,6 +193,11 @@ impl PointCloud {
         }
     }
 
+    /// Decode a point cloud from a decoder buffer
+    ///
+    /// # Safety
+    ///
+    /// The decoder buffer must contains valid memory
     pub fn from_buffer(decoder: &mut Decoder, buffer: &mut DecoderBuffer) -> DracoStatusType<Self> {
         let mut status_or = unsafe {
             decoder
