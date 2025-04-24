@@ -5,9 +5,10 @@ Rust bindings for the *forked* [Draco](https://github.com/soraxas/draco) library
 ## Features
 
 - Encode and decode 3D geometry (meshes & point clouds)
-- Safe, idiomatic Rust API built on [autocxx]
 - Direct, low-overhead mapping to core Draco constructs
 - Support for custom attributes and per-point data
+
+**Status**: idiomatic Rust API will only be added on a as-needed basis. If you need to access some non-exposed draco API, call the `wrapped_draco_obj.get_inner[_mut]()` function to manipulate the underlying unique ptr.
 
 ## Installation
 
