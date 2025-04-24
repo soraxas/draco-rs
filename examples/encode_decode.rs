@@ -1,9 +1,7 @@
 use draco_rs::prelude::*;
 use std::io;
 
-use draco_rs::pointcloud::{
-    AttrId, Decoder, DecoderBuffer, Encoder, PointCloud, PointCloudBuilder,
-};
+use draco_rs::pointcloud::{PointCloud, PointCloudBuilder};
 
 fn gen_points() -> Vec<[f64; 3]> {
     // This function returns a vector of points

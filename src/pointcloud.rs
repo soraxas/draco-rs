@@ -1,36 +1,12 @@
-use crate::prelude::{
-    ffi::{self},
-    StatusOr,
+use crate::{
+    decode::{Decoder, DecoderBuffer},
+    encode::{Encoder, EncoderBuffer},
+    prelude::{
+        ffi::{self},
+        AttrId, DracoStatusType, StatusOr,
+    },
 };
 use autocxx::prelude::*;
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct AttrId(pub c_int);
-
-pub type DracoStatusType<T> = Result<T, UniquePtr<ffi::draco::Status>>;
-
-impl AttrId {
-    pub fn as_u32(&self) -> u32 {
-        self.0 .0 as u32
-    }
-}
-
-impl From<c_int> for AttrId {
-    fn from(value: c_int) -> Self {
-        Self(value)
-    }
-}
-impl From<AttrId> for c_int {
-    fn from(value: AttrId) -> Self {
-        value.0
-    }
-}
-
-impl From<u32> for ffi::draco::PointIndex {
-    fn from(val: u32) -> Self {
-        ffi::draco::PointIndex { val }
-    }
-}
 
 pub struct PointCloudBuilder {
     builder: UniquePtr<ffi::draco::PointCloudBuilder>,
@@ -69,6 +45,7 @@ impl PointCloudBuilder {
             );
         }
     }
+
     pub fn build(mut self, deduplicate_points: bool) -> PointCloud {
         PointCloud {
             pc: self.builder.pin_mut().Finalize(deduplicate_points),
@@ -79,6 +56,7 @@ impl PointCloudBuilder {
 pub struct PointCloud {
     pc: UniquePtr<ffi::draco::PointCloud>,
 }
+
 impl Default for PointCloud {
     fn default() -> Self {
         Self::new()
@@ -174,106 +152,5 @@ impl PointCloud {
         } else {
             Err(status_or.status().within_unique_ptr())
         }
-    }
-}
-
-pub struct Encoder {
-    pub(crate) encoder: UniquePtr<ffi::draco::Encoder>,
-}
-
-impl Encoder {
-    pub fn new() -> Self {
-        let encoder = ffi::draco::Encoder::new().within_unique_ptr();
-        Self { encoder }
-    }
-
-    pub fn set_attribute_quantization(
-        mut self,
-        attr: ffi::draco::GeometryAttribute_Type,
-        num_bits: i32,
-    ) -> Self {
-        self.encoder
-            .pin_mut()
-            .SetAttributeQuantization(attr, num_bits.into());
-        self
-    }
-
-    pub fn set_speed_options(mut self, encoding_speed: i32, decoding_speed: i32) -> Self {
-        self.encoder
-            .pin_mut()
-            .SetSpeedOptions(encoding_speed.into(), decoding_speed.into());
-        self
-    }
-}
-
-pub struct EncoderBuffer {
-    pub(crate) buffer: UniquePtr<ffi::draco::EncoderBuffer>,
-}
-
-impl EncoderBuffer {
-    pub fn new() -> Self {
-        let buffer = ffi::draco::EncoderBuffer::new().within_unique_ptr();
-        Self { buffer }
-    }
-
-    pub fn as_mut_ptr(&mut self) -> *mut ffi::draco::EncoderBuffer {
-        self.buffer.as_mut_ptr()
-    }
-}
-
-impl Default for EncoderBuffer {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-pub struct DecoderBuffer {
-    pub(crate) buffer: UniquePtr<ffi::draco::DecoderBuffer>,
-}
-
-impl DecoderBuffer {
-    pub fn new() -> Self {
-        let buffer = ffi::draco::DecoderBuffer::new().within_unique_ptr();
-        Self { buffer }
-    }
-
-    pub fn from_encoder_buffer(encoder_buffer: &mut EncoderBuffer) -> Self {
-        let mut buffer = ffi::draco::DecoderBuffer::new().within_unique_ptr();
-        unsafe {
-            buffer.pin_mut().Init(
-                encoder_buffer.buffer.as_ref().unwrap().data(),
-                encoder_buffer.buffer.size(),
-            )
-        };
-        Self { buffer }
-    }
-}
-
-impl Default for DecoderBuffer {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-pub struct Decoder {
-    pub(crate) decoder: UniquePtr<ffi::draco::Decoder>,
-}
-
-impl Decoder {
-    pub fn new() -> Self {
-        let decoder = ffi::draco::Decoder::new().within_unique_ptr();
-        Self { decoder }
-    }
-}
-
-impl Default for Encoder {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl Default for Decoder {
-    fn default() -> Self {
-        Self::new()
     }
 }
