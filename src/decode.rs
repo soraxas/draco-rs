@@ -1,28 +1,23 @@
-use crate::{
-    encode::EncoderBuffer,
-    prelude::ffi::{self},
-};
+use crate::{encode::EncoderBuffer, prelude::*};
 use autocxx::prelude::*;
 
-pub struct DecoderBuffer {
-    pub(crate) buffer: UniquePtr<ffi::draco::DecoderBuffer>,
-}
+pub type DecoderBuffer = WrappedDracoObject<ffi::draco::DecoderBuffer>;
 
 impl DecoderBuffer {
     pub fn new() -> Self {
         let buffer = ffi::draco::DecoderBuffer::new().within_unique_ptr();
-        Self { buffer }
+        Self(buffer)
     }
 
     pub fn from_encoder_buffer(encoder_buffer: &mut EncoderBuffer) -> Self {
         let mut buffer = ffi::draco::DecoderBuffer::new().within_unique_ptr();
         unsafe {
             buffer.pin_mut().Init(
-                encoder_buffer.buffer.as_ref().unwrap().data(),
-                encoder_buffer.buffer.size(),
+                encoder_buffer.0.as_ref().unwrap().data(),
+                encoder_buffer.0.size(),
             )
         };
-        Self { buffer }
+        Self(buffer)
     }
 }
 

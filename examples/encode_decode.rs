@@ -41,7 +41,7 @@ fn main() -> io::Result<()> {
     );
 
     for (i, point) in points.iter().enumerate() {
-        builder.add_point(attr_id, ffi::draco::PointIndex { val: i as u32 }, point);
+        builder.add_point(attr_id, i, point);
     }
     let mut pc = builder.build(false);
 

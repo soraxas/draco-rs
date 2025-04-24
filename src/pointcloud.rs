@@ -1,22 +1,17 @@
 use crate::{
     decode::{Decoder, DecoderBuffer},
     encode::{Encoder, EncoderBuffer},
-    prelude::{
-        ffi::{self},
-        AttrId, DracoStatusType, StatusOr,
-    },
+    prelude::*,
 };
 use autocxx::prelude::*;
 
-pub struct PointCloudBuilder {
-    builder: UniquePtr<ffi::draco::PointCloudBuilder>,
-}
+pub type PointCloudBuilder = WrappedDracoObject<ffi::draco::PointCloudBuilder>;
 
 impl PointCloudBuilder {
     pub fn new(num: u32) -> Self {
         let mut builder = ffi::draco::PointCloudBuilder::new().within_unique_ptr();
         builder.pin_mut().Start(num);
-        Self { builder }
+        Self(builder)
     }
 
     pub fn add_attribute(
@@ -25,7 +20,7 @@ impl PointCloudBuilder {
         num_components: i8,
         data_type: ffi::draco::DataType,
     ) -> AttrId {
-        self.builder
+        self.0
             .pin_mut()
             .AddAttribute(attribute_type, num_components, data_type)
             .into()
@@ -50,14 +45,12 @@ impl PointCloudBuilder {
 
     pub fn build(mut self, deduplicate_points: bool) -> PointCloud {
         PointCloud {
-            pc: self.builder.pin_mut().Finalize(deduplicate_points),
+            0: self.0.pin_mut().Finalize(deduplicate_points),
         }
     }
 }
 
-pub struct PointCloud {
-    pc: UniquePtr<ffi::draco::PointCloud>,
-}
+pub type PointCloud = WrappedDracoObject<ffi::draco::PointCloud>;
 
 impl Default for PointCloud {
     fn default() -> Self {
@@ -68,7 +61,7 @@ impl Default for PointCloud {
 impl PointCloud {
     pub fn new() -> Self {
         let pc = ffi::draco::PointCloud::new().within_unique_ptr();
-        Self { pc }
+        Self(pc)
     }
 
     // This function returns the attribute id of the attribute with the given name
@@ -82,7 +75,7 @@ impl PointCloud {
         T: Default + Copy,
         Idx: Into<ffi::draco::PointIndex>,
     {
-        let pa_ptr = self.pc.pin_mut().GetAttributeByUniqueId(attr_id.as_u32());
+        let pa_ptr = self.0.pin_mut().GetAttributeByUniqueId(attr_id.as_u32());
         unsafe {
             (*pa_ptr).GetMappedValue(
                 point_index.into(),
@@ -107,19 +100,19 @@ impl PointCloud {
     }
 
     pub fn num_named_attributes(&self, attr_type: ffi::draco::GeometryAttribute_Type) -> i32 {
-        self.pc.NumNamedAttributes(attr_type)
+        self.0.NumNamedAttributes(attr_type)
     }
 
     pub fn num_points(&self) -> u32 {
-        self.pc.num_points()
+        self.0.num_points()
     }
 
     pub fn len(&self) -> u32 {
-        self.pc.num_points()
+        self.0.num_points()
     }
 
     pub fn is_empty(&self) -> bool {
-        self.pc.num_points() == 0
+        self.0.num_points() == 0
     }
 
     pub fn to_buffer(&self, encoder: &mut Encoder) -> DracoStatusType<EncoderBuffer> {
@@ -127,9 +120,9 @@ impl PointCloud {
 
         let status = unsafe {
             encoder
-                .encoder
+                .0
                 .pin_mut()
-                .EncodePointCloudToBuffer(self.pc.as_ref().unwrap(), buffer.as_mut_ptr())
+                .EncodePointCloudToBuffer(self.0.as_ref().unwrap(), buffer.as_mut_ptr())
                 .within_unique_ptr()
         };
 
@@ -145,12 +138,10 @@ impl PointCloud {
             decoder
                 .decoder
                 .pin_mut()
-                .DecodePointCloudFromBuffer(buffer.buffer.as_mut_ptr())
+                .DecodePointCloudFromBuffer(buffer.0.as_mut_ptr())
         };
         if status_or.ok() {
-            Ok(Self {
-                pc: status_or.pin_mut().value(),
-            })
+            Ok(Self(status_or.pin_mut().value()))
         } else {
             Err(status_or.status().within_unique_ptr())
         }
