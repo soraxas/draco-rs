@@ -26,19 +26,39 @@ impl PointCloudBuilder {
             .into()
     }
 
+    /// Adds the data from the provided slice as the attribute value for a specific point.
+    ///
+    /// # Safety
+    ///
+    /// The `point` slice must point to valid memory with a lifetime at least as long as the `PointCloudBuilder` instance.
+    /// The size and type of the data in the slice must be compatible with the attribute `attr_id`.
     pub fn add_point<T, const N: usize>(
         &mut self,
         attr_id: AttrId,
         point_index: impl Into<ffi::draco::PointIndex>,
         point: &[T; N],
     ) {
-        unsafe {
-            self.0.pin_mut().SetAttributeValueForPoint(
-                attr_id.into(),
-                point_index.into(),
-                point.as_ptr() as *const autocxx::c_void,
-            );
-        }
+        unsafe { self.add_point_with_ptr(attr_id, point_index, point.as_ptr() as *const c_void) }
+    }
+
+    /// Adds the data pointed to by the raw pointer as the attribute value for a specific point.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it takes a raw pointer `ptr` to the point data.
+    /// It is the caller's responsibility to ensure that:
+    /// - `ptr` is valid and points to memory that is properly aligned for the attribute type.
+    /// - The memory pointed to by `ptr` has a lifetime at least as long as the `PointCloudBuilder` instance.
+    /// - The size of the data pointed to by `ptr` is sufficient for the attribute type associated with `attr_id`.
+    pub unsafe fn add_point_with_ptr(
+        &mut self,
+        attr_id: AttrId,
+        point_index: impl Into<ffi::draco::PointIndex>,
+        ptr: *const c_void,
+    ) {
+        self.0
+            .pin_mut()
+            .SetAttributeValueForPoint(attr_id.into(), point_index.into(), ptr);
     }
 
     pub fn build(mut self, deduplicate_points: bool) -> PointCloud {

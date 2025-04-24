@@ -9,6 +9,7 @@ fn compile() -> String {
         .cxxflag("-fPIC")
         // silent all build noise from the upstream draco library
         .cxxflag("-w")
+        .cxxflag("-Wno-everything")
         .build();
 
     dst.display().to_string()
@@ -22,7 +23,11 @@ fn generate_bindings(out_dir: String) -> miette::Result<()> {
     ];
 
     let mut b = autocxx_build::Builder::new("src/bindgen.rs", &includes)
-        .extra_clang_args(&["-std=c++14"])
+        .extra_clang_args(&[
+            "-std=c++14",
+            "-w", // silences all warnings during clang parsing
+            "-Wno-everything",
+        ])
         .build()?;
 
     b.opt_level(3)
