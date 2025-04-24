@@ -1,3 +1,18 @@
+// This file contains the implementation of some
+// conversion that workaround limitations of autocxx
+// in the case of template types.
+//
+// E.g., all templated types (except for the most basic ones)
+// are mangled by autocxx, so we cannot directly unpack/use methods
+// on them.
+//
+// E.g., `StatusOr<UniquePtr<Mesh>>` binding is opaque
+// (i.e. `ffi::draco_StatusOr_std_unique_ptr_draco_Mesh_AutocxxConcrete`)
+// so we cannot directly unpack/use methods on it.
+//
+// This file forwards some methods to functions within `extra.h`
+// tell c++ to unpack some of the opaque types.
+
 use autocxx::prelude::*;
 use std::pin::Pin;
 
