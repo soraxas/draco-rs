@@ -27,7 +27,7 @@ use draco_rs::{prelude::{*, ffi::draco::{GeometryAttribute_Type, DataType}}, poi
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Build a point cloud with 3 components per point
     let mut builder = PointCloudBuilder::new(1);
-    let attr_id = builder.add_attribute(GeometryAttribute_Type::POSITION, 3, DataType::DT_FLOAT64);
+    let attr_id = builder.add_attribute(GeometryAttribute_Type::POSITION, 3, DataType::DT_FLOAT32);
     builder.add_point(attr_id, 0, &[0.0f32, 1.0, 2.0]);
     let cloud = builder.build(false);
 
