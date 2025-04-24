@@ -36,7 +36,7 @@ impl PointCloudBuilder {
     {
         unsafe {
             self.0.pin_mut().SetAttributeValueForPoint(
-                attr_id.0,
+                attr_id.into(),
                 point_index.into(),
                 point.as_ptr() as *const autocxx::c_void,
             );
@@ -99,9 +99,52 @@ impl PointCloud {
         point
     }
 
+    // Returns the number of named attributes of a given type.
     pub fn num_named_attributes(&self, attr_type: ffi::draco::GeometryAttribute_Type) -> i32 {
         self.0.NumNamedAttributes(attr_type)
     }
+
+    // Returns the id of the i-th named attribute of a given type.
+    pub fn get_named_attribute_id(
+        &self,
+        attr_type: ffi::draco::GeometryAttribute_Type,
+        i: i32,
+    ) -> Option<AttrId> {
+        let id = self.0.GetNamedAttributeId1(attr_type, i.into());
+        if id < 0 {
+            None
+        } else {
+            Some(AttrId(id))
+        }
+    }
+
+    // // Returns the i-th named attribute of a given type.
+    // pub fn get_named_attribute(
+    //     &self,
+    //     attr_type: ffi::draco::GeometryAttribute_Type,
+    //     i: i32,
+    // ) -> Option<NonOwningPointAttribute> {
+    //     let attr = self.0.GetNamedAttribute1(attr_type, i.into());
+    //     if attr.is_null() {
+    //         None
+    //     } else {
+    //         Some(NonOwningPointAttribute { ptr: attr })
+    //     }
+    // }
+
+    //   // Returns the named attribute of a given unique id.
+    //     pub fn get_named_attribute_by_unique_id(
+    //         &self,
+    //         attr_type: ffi::draco::GeometryAttribute_Type,
+    //         id: u32,
+    //     ) -> Option<NonOwningPointAttribute> {
+    //         let attr = self.0.GetNamedAttributeByUniqueId(attr_type, id);
+    //         if attr.is_null() {
+    //             None
+    //         } else {
+    //             Some(NonOwningPointAttribute { ptr: attr })
+    //         }
+    //     }
 
     pub fn num_points(&self) -> u32 {
         self.0.num_points()
