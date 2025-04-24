@@ -26,14 +26,12 @@ impl PointCloudBuilder {
             .into()
     }
 
-    pub fn add_point<T, const N: usize, Idx>(
+    pub fn add_point<T, const N: usize>(
         &mut self,
         attr_id: AttrId,
-        point_index: Idx,
+        point_index: impl Into<ffi::draco::PointIndex>,
         point: &[T; N],
-    ) where
-        Idx: Into<ffi::draco::PointIndex>,
-    {
+    ) {
         unsafe {
             self.0.pin_mut().SetAttributeValueForPoint(
                 attr_id.into(),
@@ -66,14 +64,13 @@ impl PointCloud {
 
     // This function returns the attribute id of the attribute with the given name
     // It stores the value in-place
-    pub fn get_point<T, const N: usize, Idx>(
+    pub fn get_point<T, const N: usize>(
         &mut self,
         attr_id: AttrId,
-        point_index: Idx,
+        point_index: impl Into<ffi::draco::PointIndex>,
         point_container: &mut [T; N],
     ) where
         T: Default + Copy,
-        Idx: Into<ffi::draco::PointIndex>,
     {
         let pa_ptr = self.0.pin_mut().GetAttributeByUniqueId(attr_id.as_u32());
         unsafe {
@@ -85,14 +82,13 @@ impl PointCloud {
     }
 
     // This function allocates a new array of type T and fills it with the point data
-    pub fn get_point_alloc<T, const N: usize, Idx>(
+    pub fn get_point_alloc<T, const N: usize>(
         &mut self,
         attr_id: AttrId,
-        point_index: Idx,
+        point_index: impl Into<ffi::draco::PointIndex>,
     ) -> [T; N]
     where
         T: Default + Copy,
-        Idx: Into<ffi::draco::PointIndex>,
     {
         let mut point = [T::default(); N];
         self.get_point(attr_id, point_index, &mut point);
@@ -172,7 +168,7 @@ impl PointCloud {
         if status.ok() {
             Ok(buffer)
         } else {
-            Err(status)
+            Err(status.into())
         }
     }
 
@@ -186,7 +182,7 @@ impl PointCloud {
         if status_or.ok() {
             Ok(Self(status_or.pin_mut().value()))
         } else {
-            Err(status_or.status().within_unique_ptr())
+            Err(status_or.status().within_unique_ptr().into())
         }
     }
 }

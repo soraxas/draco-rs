@@ -1,7 +1,33 @@
 use crate::prelude::ffi::{self};
 use autocxx::prelude::*;
 
-pub type DracoStatusType<T> = Result<T, UniquePtr<ffi::draco::Status>>;
+pub struct DracoStatus(pub(crate) UniquePtr<ffi::draco::Status>);
+
+impl std::fmt::Display for DracoStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.0.as_ref() {
+            Some(status) => write!(f, "{:?}", status.error_msg_string()),
+            None => write!(f, "unable to access underlying draco status"),
+        }
+    }
+}
+
+impl std::fmt::Debug for DracoStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "DracoStatus({})", self)
+    }
+}
+
+impl From<UniquePtr<ffi::draco::Status>> for DracoStatus {
+    fn from(status: UniquePtr<ffi::draco::Status>) -> Self {
+        Self(status)
+    }
+}
+
+// allow turning DracoStatusType into std::error::Error
+impl std::error::Error for DracoStatus {}
+
+pub type DracoStatusType<T> = Result<T, DracoStatus>;
 
 // This is a wrapper around the attribute id returned by the C++ API
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -32,6 +58,12 @@ impl From<u32> for ffi::draco::PointIndex {
 
 impl From<usize> for ffi::draco::PointIndex {
     fn from(val: usize) -> Self {
+        ffi::draco::PointIndex { val: val as u32 }
+    }
+}
+
+impl From<i32> for ffi::draco::PointIndex {
+    fn from(val: i32) -> Self {
         ffi::draco::PointIndex { val: val as u32 }
     }
 }
